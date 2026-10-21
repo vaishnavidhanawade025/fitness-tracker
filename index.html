@@ -1,256 +1,2232 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitness Tracker</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Fitness Tracker Pro - Track Your Daily Activities</title>
+    <meta name="description" content="A modern, fully interactive fitness tracker web application to log daily steps, calories burned, water intake, workouts, meals, and track weight trends.">
+    <!-- Chart.js with CDN and local fallback -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>window.Chart || document.write('<script src="js/chart.min.js"><\/script>')</script>
+
     <style>
+        /* ==================== COLOR PALETTE & VARIABLES ==================== */
         :root {
-            --primary: #10b981; --primary-dark: #059669;
-            --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b;
-            --border: #e2e8f0; --orange: #f97316; --blue: #0284c7; --purple: #6366f1;
+            --bg-primary: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --bg-subtle: #f1f5f9;
+            --bg-input: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --primary-light: rgba(16, 185, 129, 0.12);
+            --secondary: #6366f1;
+            --secondary-hover: #4f46e5;
+            --secondary-light: rgba(99, 102, 241, 0.12);
+            --accent-orange: #f97316;
+            --accent-blue: #0284c7;
+            --danger: #ef4444;
+            --danger-light: rgba(239, 68, 68, 0.12);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --max-width: 1200px;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background: var(--bg); color: var(--text); padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
-        .logo { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem; }
-        .btn { padding: 0.5rem 1rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
-        .btn-outline:hover { background: #f1f5f9; }
-        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
-        .card { background: var(--card); border-radius: 14px; padding: 1.25rem; border: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
-        .card h3 { font-size: 0.9rem; color: var(--muted); text-transform: uppercase; margin-bottom: 0.5rem; display: flex; justify-content: space-between; }
-        .card .value { font-size: 2.2rem; font-weight: 800; margin-bottom: 0.25rem; }
-        .card .sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
-        .bar-bg { width: 100%; height: 8px; background: #e2e8f0; border-radius: 99px; overflow: hidden; margin-bottom: 0.75rem; }
-        .bar-fill { height: 100%; border-radius: 99px; transition: 0.4s; }
-        .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.5rem; }
 
-        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
-        @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
-        .item-list { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
-        .item { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.85rem; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; }
-        .del-btn { background: none; border: none; cursor: pointer; color: #ef4444; font-size: 1rem; }
+        [data-theme="dark"] {
+            --bg-primary: #0b0f19;
+            --bg-card: #151c2c;
+            --bg-card-hover: #1c253b;
+            --bg-subtle: #1e293b;
+            --bg-input: #1e293b;
+            --border-color: #273449;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
 
-        /* Modal */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 99; padding: 1rem; }
-        .modal.active { display: flex; }
-        .modal-box { background: white; padding: 1.5rem; border-radius: 16px; width: 100%; max-width: 400px; }
+        /* ==================== BASE STYLES ==================== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==================== HEADER & NAV ==================== */
+        header.app-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+        .header-container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0.85rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, #10b981, #059669);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .current-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: none;
+        }
+        @media (min-width: 640px) { .current-date { display: inline-block; } }
+
+        .nav-tabs {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-tabs::-webkit-scrollbar { display: none; }
+        .tabs-container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 1.25rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .tab-btn {
+            padding: 0.75rem 1rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: var(--transition);
+        }
+        .tab-btn:hover { color: var(--primary); }
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        main.app-main {
+            max-width: var(--max-width);
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.5rem 1.25rem;
+            flex: 1;
+        }
+        .tab-content { display: none; animation: fadeIn 0.25s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==================== BUTTONS ==================== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.55rem 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn-primary { background: var(--primary); color: #ffffff; }
+        .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35); }
+        .btn-secondary { background: var(--secondary); color: #ffffff; }
+        .btn-secondary:hover { background: var(--secondary-hover); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35); }
+        .btn-outline { background: transparent; border-color: var(--border-color); color: var(--text-primary); }
+        .btn-outline:hover { background: var(--bg-subtle); border-color: var(--text-muted); }
+        .btn-icon {
+            width: 38px; height: 38px; padding: 0;
+            border-radius: var(--radius-md);
+            display: inline-flex; align-items: center; justify-content: center;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card); color: var(--text-primary);
+            cursor: pointer; transition: var(--transition);
+        }
+        .btn-icon:hover { background: var(--bg-subtle); }
+        .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.775rem; }
+
+        .action-banner {
+            display: flex; flex-wrap: wrap; gap: 0.6rem;
+            margin-bottom: 1.5rem; align-items: center; justify-content: space-between;
+        }
+        .action-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+        /* ==================== METRICS GRID ==================== */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+        .card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+        .card-title-group { display: flex; align-items: center; gap: 0.5rem; }
+        .card-icon {
+            width: 36px; height: 36px; border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
+        }
+        .icon-steps { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .icon-calories { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+        .icon-water { background: rgba(2, 132, 199, 0.15); color: #0284c7; }
+        .icon-weight { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+
+        .card-title { font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); }
+        .card-badge {
+            font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.55rem;
+            border-radius: var(--radius-full); background: var(--bg-subtle); color: var(--text-secondary);
+        }
+        .card-value { font-size: 2rem; font-weight: 800; color: var(--text-primary); line-height: 1.1; margin-bottom: 0.25rem; }
+        .card-subtitle { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.85rem; }
+
+        .progress-container {
+            width: 100%; height: 8px; background-color: var(--bg-subtle);
+            border-radius: var(--radius-full); overflow: hidden; margin-bottom: 0.6rem;
+        }
+        .progress-bar { height: 100%; border-radius: var(--radius-full); transition: width 0.4s ease; }
+        .progress-steps { background: linear-gradient(90deg, #10b981, #34d399); }
+        .progress-calories { background: linear-gradient(90deg, #f97316, #fb923c); }
+        .progress-water { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+        .progress-weight { background: linear-gradient(90deg, #6366f1, #818cf8); }
+
+        .card-footer-info { display: flex; justify-content: space-between; align-items: center; font-size: 0.775rem; color: var(--text-secondary); }
+        .card-quick-actions { display: flex; gap: 0.4rem; margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px dashed var(--border-color); }
+
+        /* ==================== DASHBOARD GRID ==================== */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        @media (min-width: 900px) { .dashboard-grid { grid-template-columns: 1.8fr 1.2fr; } }
+        .section-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow-sm); margin-bottom: 1.5rem;
+        }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .section-title { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+
+        .activity-list { display: flex; flex-direction: column; gap: 0.65rem; }
+        .activity-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.75rem 0.9rem; background: var(--bg-subtle); border-radius: var(--radius-md); transition: var(--transition);
+        }
+        .activity-item:hover { background: var(--bg-card-hover); }
+        .activity-left { display: flex; align-items: center; gap: 0.75rem; }
+        .activity-icon {
+            width: 38px; height: 38px; border-radius: var(--radius-md); background: var(--bg-card);
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: var(--shadow-sm);
+        }
+        .activity-info h4 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+        .activity-info p { font-size: 0.75rem; color: var(--text-muted); }
+        .activity-right { display: flex; align-items: center; gap: 0.75rem; }
+        .activity-cals { font-size: 0.85rem; font-weight: 700; color: var(--accent-orange); }
+        .btn-delete {
+            background: none; border: none; color: var(--text-muted); cursor: pointer;
+            padding: 0.25rem; font-size: 1rem; border-radius: var(--radius-sm);
+        }
+        .btn-delete:hover { color: var(--danger); background: var(--danger-light); }
+        .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); }
+        .empty-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+        .water-cups-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.75rem 0; }
+        .water-cup {
+            width: 26px; height: 32px; border: 2px solid var(--border-color);
+            border-radius: 3px 3px 6px 6px; cursor: pointer; background: var(--bg-subtle); transition: var(--transition);
+        }
+        .water-cup.filled { border-color: #0284c7; background: #38bdf8; box-shadow: 0 0 6px rgba(56, 189, 248, 0.4); }
+
+        .nutrition-breakdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin: 1rem 0; text-align: center; }
+        .macro-box { background: var(--bg-subtle); padding: 0.6rem 0.4rem; border-radius: var(--radius-md); }
+        .macro-box span { display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+        .macro-box strong { font-size: 0.95rem; color: var(--text-primary); }
+
+        /* ==================== CHARTS & CALCS ==================== */
+        .charts-grid, .calc-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+        @media (min-width: 768px) { .charts-grid, .calc-grid { grid-template-columns: 1fr 1fr; } }
+        .chart-card, .calc-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow-sm);
+        }
+        .chart-wrapper { position: relative; width: 100%; height: 260px; }
+        .calc-result-box { background: var(--bg-subtle); border-radius: var(--radius-md); padding: 1.25rem; margin-top: 1.25rem; text-align: center; }
+        .calc-result-value { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin: 0.25rem 0; }
+        .bmi-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; margin-top: 0.25rem; }
+
+        /* ==================== FORMS & MODALS ==================== */
         .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.3rem; }
-        .form-group input, .form-group select { width: 100%; padding: 0.55rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
+        .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.35rem; }
+        .form-control {
+            width: 100%; padding: 0.65rem 0.85rem; background: var(--bg-input); border: 1px solid var(--border-color);
+            border-radius: var(--radius-md); color: var(--text-primary); font-size: 0.9rem; outline: none; transition: var(--transition);
+        }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center; padding: 1rem;
+            z-index: 200; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-dialog {
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-xl);
+            width: 100%; max-width: 480px; box-shadow: var(--shadow-xl); transform: scale(0.95); transition: transform 0.2s ease; overflow: hidden;
+        }
+        .modal-overlay.active .modal-dialog { transform: scale(1); }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); }
+        .modal-header h3 { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.35rem; cursor: pointer; padding: 0.25rem; }
+        .modal-body { padding: 1.5rem; max-height: 75vh; overflow-y: auto; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 0.6rem; padding: 1rem 1.5rem; border-top: 1px solid var(--border-color); background: var(--bg-subtle); }
+
+        .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999; display: flex; flex-direction: column; gap: 0.6rem; pointer-events: none; }
+        .toast {
+            background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg); padding: 0.75rem 1.25rem; border-radius: var(--radius-md);
+            font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; gap: 0.6rem; pointer-events: auto;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        footer.app-footer { background: var(--bg-card); border-top: 1px solid var(--border-color); padding: 1.25rem; text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: auto; }
+        @media (max-width: 640px) {
+            .header-container { padding: 0.75rem 1rem; }
+            .card-value { font-size: 1.7rem; }
+            .action-banner { flex-direction: column; align-items: stretch; }
+            .action-buttons { display: grid; grid-template-columns: 1fr 1fr; }
+            .nutrition-breakdown { grid-template-columns: repeat(2, 1fr); }
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">ðŸƒ Fitness Tracker Pro</div>
-        <div>
-            <button class="btn btn-primary" onclick="openModal('modalWorkout')">+ Log Workout</button>
-            <button class="btn btn-outline" onclick="resetData()">ðŸ”„ Reset</button>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="brand">
+                <div class="brand-icon">🏃</div>
+                <span>Fitness Tracker</span>
+            </div>
+            
+            <div class="header-actions">
+                <span class="current-date" id="currentDateDisplay">Today</span>
+                <button class="btn btn-outline btn-sm" id="btnExportData" title="Export Backup JSON">💾 Export</button>
+                <label class="btn btn-outline btn-sm" style="cursor: pointer;" title="Import Backup JSON">
+                    📥 Import
+                    <input type="file" id="fileImportInput" accept=".json" style="display: none;">
+                </label>
+                <button class="btn btn-outline btn-sm" id="btnResetDemo" title="Reset Demo Data">🔄 Reset</button>
+                <button class="btn-icon" id="themeToggleBtn" title="Toggle Dark/Light Mode">
+                    <span id="themeIcon">🌙</span>
+                </button>
+            </div>
         </div>
+
+        <nav class="nav-tabs">
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="tab-dashboard">📊 Dashboard</button>
+                <button class="tab-btn" data-tab="tab-analytics">📈 Analytics & Trends</button>
+                <button class="tab-btn" data-tab="tab-calculators">🧮 Health Calculators</button>
+                <button class="tab-btn" data-tab="tab-goals">🎯 Goals & Profile</button>
+            </div>
+        </nav>
     </header>
 
-    <!-- 4 Core Metric Cards -->
-    <div class="grid">
-        <!-- Steps -->
-        <div class="card">
-            <h3><span>Steps</span> <span id="pctSteps" style="color:var(--primary)">75%</span></h3>
-            <div class="value" id="valSteps">7,520</div>
-            <div class="sub">Goal: 10,000 steps</div>
-            <div class="bar-bg"><div class="bar-fill" id="barSteps" style="width:75%; background:var(--primary);"></div></div>
-            <div class="actions">
-                <button class="btn btn-outline btn-sm" onclick="addSteps(500)">+500</button>
-                <button class="btn btn-outline btn-sm" onclick="addSteps(1000)">+1,000</button>
-                <button class="btn btn-outline btn-sm" onclick="promptSteps()">Custom</button>
-            </div>
-        </div>
+    <!-- Main App Container -->
+    <main class="app-main">
 
-        <!-- Calories -->
-        <div class="card">
-            <h3><span>Calories</span> <span id="pctCalories" style="color:var(--orange)">84%</span></h3>
-            <div class="value" id="valCalories">420</div>
-            <div class="sub">Goal: 500 kcal burned</div>
-            <div class="bar-bg"><div class="bar-fill" id="barCalories" style="width:84%; background:var(--orange);"></div></div>
-            <div class="actions">
-                <button class="btn btn-outline btn-sm" style="width:100%" onclick="openModal('modalWorkout')">+ Log Workout</button>
-            </div>
-        </div>
-
-        <!-- Water -->
-        <div class="card">
-            <h3><span>Water</span> <span id="pctWater" style="color:var(--blue)">72%</span></h3>
-            <div class="value" id="valWater">1.8 L</div>
-            <div class="sub">Goal: 2.5 L intake</div>
-            <div class="bar-bg"><div class="bar-fill" id="barWater" style="width:72%; background:var(--blue);"></div></div>
-            <div class="actions">
-                <button class="btn btn-outline btn-sm" onclick="addWater(250)">+250ml</button>
-                <button class="btn btn-outline btn-sm" onclick="addWater(500)">+500ml</button>
-                <button class="btn btn-outline btn-sm" onclick="addWater(750)">+750ml</button>
-            </div>
-        </div>
-
-        <!-- Weight & BMI -->
-        <div class="card">
-            <h3><span>Weight</span> <span id="badgeBMI" style="color:var(--purple); font-weight:700;">BMI 19.5</span></h3>
-            <div class="value" id="valWeight">50 kg</div>
-            <div class="sub">Normal healthy weight range</div>
-            <div class="bar-bg"><div class="bar-fill" style="width:100%; background:var(--purple);"></div></div>
-            <div class="actions">
-                <button class="btn btn-outline btn-sm" style="width:100%" onclick="updateWeightPrompt()">âš–ï¸ Update Weight</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Charts & Workouts Section -->
-    <div class="two-col">
-        <!-- 7-Day Chart -->
-        <div class="card">
-            <h3 style="margin-bottom: 1rem;">ðŸ“Š 7-Day Activity Trend (Steps)</h3>
-            <div style="height: 250px;"><canvas id="chartSteps"></canvas></div>
-        </div>
-
-        <!-- Recent Workouts -->
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin: 0;">ðŸƒ Today's Workouts</h3>
-                <button class="btn btn-primary btn-sm" onclick="openModal('modalWorkout')">+ Add</button>
-            </div>
-            <div class="item-list" id="workoutList"></div>
-        </div>
-    </div>
-
-    <!-- Workout Modal -->
-    <div class="modal" id="modalWorkout">
-        <div class="modal-box">
-            <h3 style="margin-bottom: 1rem;">ðŸ”¥ Log Workout</h3>
-            <form id="workoutForm">
-                <div class="form-group">
-                    <label>Activity Type</label>
-                    <select id="wType">
-                        <option value="Running">ðŸƒ Running</option>
-                        <option value="Cycling">ðŸš´ Cycling</option>
-                        <option value="Gym / Weights">ðŸ‹ï¸ Gym / Weights</option>
-                        <option value="Yoga">ðŸ§˜ Yoga</option>
-                        <option value="Swimming">ðŸŠ Swimming</option>
-                        <option value="Walking">ðŸš¶ Walking</option>
-                    </select>
+        <!-- ==================== TAB 1: DASHBOARD ==================== -->
+        <section id="tab-dashboard" class="tab-content active">
+            <div class="action-banner">
+                <div>
+                    <h2 style="font-size: 1.3rem; font-weight: 700;">Welcome Back, Vaishnavi! 👋</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Here is your daily fitness and wellness progress.</p>
                 </div>
-                <div class="form-group">
-                    <label>Duration (Minutes)</label>
-                    <input type="number" id="wDuration" value="30" min="1" required>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="window.FitnessApp.openModal('modalWorkout')">🔥 Log Workout</button>
+                    <button class="btn btn-secondary" onclick="window.FitnessApp.openModal('modalMeal')">🥗 Log Meal</button>
+                    <button class="btn btn-outline" onclick="window.FitnessApp.openModal('modalSteps')">👟 Add Steps</button>
+                    <button class="btn btn-outline" onclick="window.FitnessApp.openModal('modalWater')">💧 Add Water</button>
                 </div>
-                <div class="form-group">
-                    <label>Calories Burned (kcal)</label>
-                    <input type="number" id="wCalories" value="250" min="1" required>
+            </div>
+
+            <div class="metrics-grid">
+                <!-- 1. Steps -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-icon icon-steps">👟</div>
+                            <span class="card-title">Steps</span>
+                        </div>
+                        <span class="card-badge" id="pctSteps">75%</span>
+                    </div>
+                    <div class="card-value" id="valSteps">7,520</div>
+                    <div class="card-subtitle">steps today</div>
+                    <div class="progress-container">
+                        <div class="progress-bar progress-steps" id="barSteps" style="width: 75%;"></div>
+                    </div>
+                    <div class="card-footer-info">
+                        <span id="targetSteps">Goal: 10,000 steps</span>
+                        <span>👟 Active</span>
+                    </div>
+                    <div class="card-quick-actions">
+                        <button class="btn btn-outline btn-sm" id="btnQuickSteps500">+500</button>
+                        <button class="btn btn-outline btn-sm" id="btnQuickSteps1000">+1,000</button>
+                        <button class="btn btn-outline btn-sm" onclick="window.FitnessApp.openModal('modalSteps')">Custom</button>
+                    </div>
                 </div>
-                <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-                    <button type="button" class="btn btn-outline" onclick="closeModal('modalWorkout')">Cancel</button>
+
+                <!-- 2. Calories -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-icon icon-calories">🔥</div>
+                            <span class="card-title">Calories</span>
+                        </div>
+                        <span class="card-badge" id="pctCalories">84%</span>
+                    </div>
+                    <div class="card-value" id="valCalories">420</div>
+                    <div class="card-subtitle">kcal burned</div>
+                    <div class="progress-container">
+                        <div class="progress-bar progress-calories" id="barCalories" style="width: 84%;"></div>
+                    </div>
+                    <div class="card-footer-info">
+                        <span id="targetCalories">Goal: 500 kcal</span>
+                        <span>🔥 2 workouts</span>
+                    </div>
+                    <div class="card-quick-actions">
+                        <button class="btn btn-primary btn-sm" style="width: 100%;" onclick="window.FitnessApp.openModal('modalWorkout')">+ Log Workout</button>
+                    </div>
+                </div>
+
+                <!-- 3. Water -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-icon icon-water">💧</div>
+                            <span class="card-title">Water</span>
+                        </div>
+                        <span class="card-badge" id="pctWater">72%</span>
+                    </div>
+                    <div class="card-value" id="valWater">1.8 L</div>
+                    <div class="card-subtitle">water intake</div>
+                    <div class="progress-container">
+                        <div class="progress-bar progress-water" id="barWater" style="width: 72%;"></div>
+                    </div>
+                    <div class="card-footer-info">
+                        <span id="targetWater">Goal: 2.5 L</span>
+                        <span>💧 Hydrated</span>
+                    </div>
+                    <div class="card-quick-actions">
+                        <button class="btn btn-outline btn-sm" id="btnQuickWater250">+250ml</button>
+                        <button class="btn btn-outline btn-sm" id="btnQuickWater500">+500ml</button>
+                        <button class="btn btn-outline btn-sm" onclick="window.FitnessApp.openModal('modalWater')">Custom</button>
+                    </div>
+                </div>
+
+                <!-- 4. Weight -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <div class="card-icon icon-weight">⚖️</div>
+                            <span class="card-title">Weight</span>
+                        </div>
+                        <span class="card-badge" id="badgeBMI">BMI 19.5 (Normal)</span>
+                    </div>
+                    <div class="card-value" id="valWeight">50 kg</div>
+                    <div class="card-subtitle">current weight</div>
+                    <div class="progress-container">
+                        <div class="progress-bar progress-weight" id="barWeight" style="width: 100%;"></div>
+                    </div>
+                    <div class="card-footer-info">
+                        <span id="targetWeight">Target: 50 kg</span>
+                        <span>🎯 Maintained</span>
+                    </div>
+                    <div class="card-quick-actions">
+                        <button class="btn btn-outline btn-sm" style="width: 100%;" onclick="window.FitnessApp.openModal('modalWeight')">⚖️ Update Weight</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-Column Feed -->
+            <div class="dashboard-grid">
+                <div>
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-title"><span>🏃</span> Today's Workouts & Activities</div>
+                            <button class="btn btn-primary btn-sm" onclick="window.FitnessApp.openModal('modalWorkout')">+ Add Workout</button>
+                        </div>
+                        <div class="activity-list" id="activityList"></div>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-title"><span>💧</span> Water Intake Tracker</div>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">250 ml / glass</span>
+                        </div>
+                        <div class="water-cups-row" id="waterCupsContainer"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-title"><span>🥗</span> Nutrition Summary</div>
+                            <button class="btn btn-secondary btn-sm" onclick="window.FitnessApp.openModal('modalMeal')">+ Log Meal</button>
+                        </div>
+                        <div class="nutrition-breakdown">
+                            <div class="macro-box">
+                                <span>Consumed</span>
+                                <strong id="valCaloriesConsumed">1,040 kcal</strong>
+                            </div>
+                            <div class="macro-box">
+                                <span>Net Cals</span>
+                                <strong id="valNetCalories">+620 kcal</strong>
+                            </div>
+                            <div class="macro-box">
+                                <span>Protein</span>
+                                <strong id="valProtein">44g</strong>
+                            </div>
+                            <div class="macro-box">
+                                <span>Carbs / Fat</span>
+                                <strong><span id="valCarbs">135g</span> / <span id="valFat">35g</span></strong>
+                            </div>
+                        </div>
+                        <div class="activity-list" id="mealsList"></div>
+                    </div>
+
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-title"><span>🌙</span> Sleep & Rest</div>
+                            <span class="card-badge" style="background: rgba(139, 92, 246, 0.15); color: #8b5cf6;">Optimal</span>
+                        </div>
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary);">7h 30m</div>
+                                <p style="font-size: 0.8rem; color: var(--text-muted);">Last night • 85% sleep score</p>
+                            </div>
+                            <div style="font-size: 2.2rem;">😴</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 2: ANALYTICS ==================== -->
+        <section id="tab-analytics" class="tab-content">
+            <div style="margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.3rem; font-weight: 700;">Performance & Analytics 📈</h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Visualize your 7-day progress, calories in vs out, workout types, and weight changes.</p>
+            </div>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="section-header">
+                        <div class="section-title">👟 Weekly Steps Trend</div>
+                        <span class="card-badge">Last 7 Days</span>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="chartWeeklySteps"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="section-header">
+                        <div class="section-title">🔥 Calories: Burned vs Consumed</div>
+                        <span class="card-badge">Daily Balance</span>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="chartCalories"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="section-header">
+                        <div class="section-title">⚡ Workout Breakdown (Minutes)</div>
+                        <span class="card-badge">By Activity</span>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="chartActivities"></canvas></div>
+                </div>
+                <div class="chart-card">
+                    <div class="section-header">
+                        <div class="section-title">⚖️ Weight Progress History</div>
+                        <span class="card-badge">Target: 50 kg</span>
+                    </div>
+                    <div class="chart-wrapper"><canvas id="chartWeight"></canvas></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 3: CALCULATORS ==================== -->
+        <section id="tab-calculators" class="tab-content">
+            <div style="margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.3rem; font-weight: 700;">Health & Fitness Calculators 🧮</h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Calculate your Body Mass Index (BMI), Basal Metabolic Rate (BMR), and Total Daily Energy Expenditure (TDEE).</p>
+            </div>
+            <div class="calc-grid">
+                <!-- BMI -->
+                <div class="calc-card">
+                    <div class="section-title" style="margin-bottom: 1.25rem;"><span>⚖️</span> Body Mass Index (BMI) Calculator</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Weight (kg)</label>
+                            <input type="number" id="bmiWeight" class="form-control" value="50" min="20" max="300" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Height (cm)</label>
+                            <input type="number" id="bmiHeight" class="form-control" value="160" min="80" max="250">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btnCalculateBMI" style="width: 100%;">Calculate BMI</button>
+                    <div class="calc-result-box">
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">Your Body Mass Index:</div>
+                        <div class="calc-result-value" id="bmiResultValue">19.5</div>
+                        <span class="bmi-badge" id="bmiResultBadge">Normal Weight</span>
+                        <p id="bmiResultDesc" style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.6rem;">Healthy weight range. Keep up the good work!</p>
+                    </div>
+                </div>
+
+                <!-- BMR / TDEE -->
+                <div class="calc-card">
+                    <div class="section-title" style="margin-bottom: 1.25rem;"><span>🔥</span> BMR & Daily Calorie Needs (TDEE)</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Weight (kg)</label>
+                            <input type="number" id="bmrWeight" class="form-control" value="50">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Height (cm)</label>
+                            <input type="number" id="bmrHeight" class="form-control" value="160">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Age (years)</label>
+                            <input type="number" id="bmrAge" class="form-control" value="22">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <select id="bmrGender" class="form-control">
+                                <option value="female" selected>Female</option>
+                                <option value="male">Male</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Activity Level</label>
+                        <select id="bmrActivity" class="form-control">
+                            <option value="sedentary">Sedentary (desk job)</option>
+                            <option value="light">Lightly Active (1-3 days/week)</option>
+                            <option value="moderate" selected>Moderately Active (3-5 days/week)</option>
+                            <option value="very_active">Very Active (6-7 days/week)</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary" id="btnCalculateBMR" style="width: 100%;">Calculate Calorie Needs</button>
+                    <div class="calc-result-box" style="text-align: left; padding: 1rem 1.25rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Basal Metabolic Rate (BMR):</span>
+                            <strong id="valBMR">1,280 kcal/day</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Maintenance (TDEE):</span>
+                            <strong id="valTDEE" style="color: var(--primary);">1,984 kcal/day</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Fat Loss Target (-500 kcal):</span>
+                            <strong id="valLossCalories" style="color: var(--accent-orange);">1,484 kcal/day</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">Muscle Gain Target (+300 kcal):</span>
+                            <strong id="valGainCalories" style="color: var(--accent-blue);">2,284 kcal/day</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 4: GOALS & PROFILE ==================== -->
+        <section id="tab-goals" class="tab-content">
+            <div style="margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.3rem; font-weight: 700;">Personal Goals & Configuration 🎯</h2>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Adjust your daily fitness targets, profile details, and data backups.</p>
+            </div>
+            <div class="calc-grid">
+                <div class="calc-card">
+                    <div class="section-title" style="margin-bottom: 1.25rem;"><span>🎯</span> Customize Daily Targets</div>
+                    <form id="formGoals">
+                        <div class="form-group">
+                            <label class="form-label">Daily Step Goal</label>
+                            <input type="number" id="goalStepsInput" class="form-control" value="10000" min="1000" step="500">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Daily Calories Burn Goal (kcal)</label>
+                            <input type="number" id="goalCaloriesInput" class="form-control" value="500" min="100" step="50">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Daily Water Goal (ml)</label>
+                            <input type="number" id="goalWaterInput" class="form-control" value="2500" min="500" step="250">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Target Weight (kg)</label>
+                                <input type="number" id="goalWeightInput" class="form-control" value="50" min="30" max="200" step="0.5">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Daily Calorie Intake (kcal)</label>
+                                <input type="number" id="goalIntakeInput" class="form-control" value="2000" min="1000" step="100">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Save Target Goals</button>
+                    </form>
+                </div>
+
+                <div class="calc-card">
+                    <div class="section-title" style="margin-bottom: 1.25rem;"><span>💾</span> Data Backup & Privacy</div>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                        All data is stored directly in your browser. You can export a JSON backup or restore from one anytime.
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <button class="btn btn-outline" onclick="window.FitnessApp.exportData()">💾 Download JSON Backup</button>
+                        <button class="btn btn-outline" onclick="document.getElementById('fileImportInput').click()">📥 Restore Data from JSON</button>
+                        <button class="btn btn-outline" style="color: var(--danger); border-color: rgba(239, 68, 68, 0.3);" onclick="window.FitnessApp.resetDemoData()">🔄 Reset to Default Demo Data</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p><strong>Fitness Tracker Pro</strong> • Designed for Health & Active Living</p>
+        <p style="margin-top: 0.25rem;">Built with HTML5, CSS3, JavaScript, Chart.js & Node.js CI/CD</p>
+    </footer>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="modalWorkout">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><span>🔥</span> Log Workout</h3>
+                <button class="modal-close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="formWorkout">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Activity Type</label>
+                        <select id="workoutType" class="form-control" required>
+                            <option value="running">🏃 Running</option>
+                            <option value="walking">🚶 Walking</option>
+                            <option value="cycling">🚴 Cycling</option>
+                            <option value="gym">🏋️ Gym / Weightlifting</option>
+                            <option value="yoga">🧘 Yoga</option>
+                            <option value="swimming">🏊 Swimming</option>
+                            <option value="hiit">⚡ HIIT / Cardio</option>
+                            <option value="pilates">🤸 Pilates</option>
+                            <option value="dancing">💃 Dancing</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Workout Description</label>
+                        <input type="text" id="workoutTitle" class="form-control" placeholder="e.g. Morning Jog" maxlength="50">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Duration (Minutes)</label>
+                            <input type="number" id="workoutDuration" class="form-control" value="30" min="1" max="600" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Intensity</label>
+                            <select id="workoutIntensity" class="form-control">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Estimated Calories Burned (kcal)</label>
+                        <input type="number" id="workoutCalories" class="form-control" placeholder="Auto-calculated">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Workout</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script>
-        const KEY = 'fitnesstracker_mini_v1';
-        let state = JSON.parse(localStorage.getItem(KEY)) || {
-            steps: 7520, waterMl: 1800, weight: 50, height: 160,
-            workouts: [
-                { id: 1, title: 'Morning Jogging', duration: 25, calories: 240, time: '07:30 AM' },
-                { id: 2, title: 'Yoga & Stretch', duration: 35, calories: 180, time: '11:15 AM' }
-            ]
-        };
-
-        function save() { localStorage.setItem(KEY, JSON.stringify(state)); updateUI(); }
-
-        function updateUI() {
-            // Steps
-            const sPct = Math.min(Math.round((state.steps / 10000) * 100), 100);
-            document.getElementById('valSteps').textContent = state.steps.toLocaleString();
-            document.getElementById('barSteps').style.width = sPct + '%';
-            document.getElementById('pctSteps').textContent = sPct + '%';
-
-            // Calories
-            const totalCals = state.workouts.reduce((s, w) => s + Number(w.calories), 0);
-            const cPct = Math.min(Math.round((totalCals / 500) * 100), 100);
-            document.getElementById('valCalories').textContent = totalCals.toLocaleString();
-            document.getElementById('barCalories').style.width = cPct + '%';
-            document.getElementById('pctCalories').textContent = cPct + '%';
-
-            // Water
-            const wPct = Math.min(Math.round((state.waterMl / 2500) * 100), 100);
-            document.getElementById('valWater').textContent = (state.waterMl / 1000).toFixed(1) + ' L';
-            document.getElementById('barWater').style.width = wPct + '%';
-            document.getElementById('pctWater').textContent = wPct + '%';
-
-            // Weight & BMI
-            const bmi = Math.round((state.weight / Math.pow(state.height / 100, 2)) * 10) / 10;
-            document.getElementById('valWeight').textContent = state.weight + ' kg';
-            document.getElementById('badgeBMI').textContent = `BMI ${bmi} (Normal)`;
-
-            // Workouts List
-            const list = document.getElementById('workoutList');
-            if (state.workouts.length === 0) {
-                list.innerHTML = '<p style="color:var(--muted); font-size:0.85rem;">No workouts logged today.</p>';
-            } else {
-                list.innerHTML = state.workouts.map(w => `
-                    <div class="item">
-                        <div>
-                            <strong>${w.title}</strong>
-                            <div style="font-size:0.75rem; color:var(--muted);">${w.duration} min â€¢ ${w.time}</div>
+    <div class="modal-overlay" id="modalMeal">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><span>🥗</span> Log Meal</h3>
+                <button class="modal-close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="formMeal">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Meal Type</label>
+                        <select id="mealType" class="form-control" required>
+                            <option value="Breakfast">🍳 Breakfast</option>
+                            <option value="Lunch">🍲 Lunch</option>
+                            <option value="Dinner">🍽️ Dinner</option>
+                            <option value="Snack">🍎 Snack</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Meal Name</label>
+                        <input type="text" id="mealName" class="form-control" placeholder="e.g. Oatmeal & Berries" required maxlength="60">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Calories (kcal)</label>
+                        <input type="number" id="mealCalories" class="form-control" placeholder="e.g. 350" min="0" max="5000" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Protein (g)</label>
+                            <input type="number" id="mealProtein" class="form-control" placeholder="0" min="0">
                         </div>
-                        <div style="display:flex; align-items:center; gap:0.75rem;">
-                            <span style="font-weight:700; color:var(--orange);">+${w.calories} kcal</span>
-                            <button class="del-btn" onclick="delWorkout(${w.id})">ðŸ—‘ï¸</button>
+                        <div class="form-group">
+                            <label class="form-label">Carbs (g)</label>
+                            <input type="number" id="mealCarbs" class="form-control" placeholder="0" min="0">
                         </div>
                     </div>
-                `).join('');
-            }
+                    <div class="form-group">
+                        <label class="form-label">Fat (g)</label>
+                        <input type="number" id="mealFat" class="form-control" placeholder="0" min="0">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-secondary">Log Meal</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-            renderChart();
+    <div class="modal-overlay" id="modalSteps">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><span>👟</span> Add Daily Steps</h3>
+                <button class="modal-close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="formSteps">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Steps to Add</label>
+                        <input type="number" id="stepsInput" class="form-control" placeholder="e.g. 1000" min="1" required>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('stepsInput').value = 500">+500</button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('stepsInput').value = 1000">+1,000</button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('stepsInput').value = 2500">+2,500</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Steps</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalWater">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><span>💧</span> Add Water</h3>
+                <button class="modal-close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="formWater">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Water Amount (ml)</label>
+                        <input type="number" id="waterInput" class="form-control" placeholder="e.g. 250" min="50" step="50" required>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('waterInput').value = 250">Glass (250ml)</button>
+                        <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('waterInput').value = 500">Bottle (500ml)</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Water</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalWeight">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h3><span>⚖️</span> Update Weight & Height</h3>
+                <button class="modal-close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="formWeight">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" id="inputWeight" class="form-control" value="50" min="20" max="300" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Height (cm)</label>
+                        <input type="number" id="inputHeight" class="form-control" value="160" min="80" max="250" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts: loads external modules if present, else fallback inline logic -->
+    <script>
+/**
+ * Fitness Tracker - Core Calculation Utilities
+ * Supports both Node.js (CommonJS) and Browser (window.FitnessCalculator)
+ */
+
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory();
+  } else {
+    root.FitnessCalculator = factory();
+  }
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  // MET (Metabolic Equivalent of Task) reference values
+  const MET_VALUES = {
+    running: 9.8,
+    walking: 3.8,
+    cycling: 7.5,
+    swimming: 8.0,
+    gym: 6.0,
+    weightlifting: 6.0,
+    yoga: 3.0,
+    hiit: 10.0,
+    pilates: 3.5,
+    dancing: 5.0
+  };
+
+  const INTENSITY_MULTIPLIERS = {
+    low: 0.85,
+    medium: 1.0,
+    high: 1.25
+  };
+
+  const ACTIVITY_MULTIPLIERS = {
+    sedentary: 1.2,
+    light: 1.375,
+    moderate: 1.55,
+    very_active: 1.725,
+    extra_active: 1.9
+  };
+
+  /**
+   * Calculate Body Mass Index (BMI)
+   * @param {number} weightKg - Weight in kilograms
+   * @param {number} heightCm - Height in centimeters
+   * @returns {number} BMI rounded to 1 decimal place
+   */
+  function calculateBMI(weightKg, heightCm) {
+    if (!weightKg || !heightCm || weightKg <= 0 || heightCm <= 0) {
+      return 0;
+    }
+    const heightM = heightCm / 100;
+    const bmi = weightKg / (heightM * heightM);
+    return Math.round(bmi * 10) / 10;
+  }
+
+  /**
+   * Get BMI health category and color indicator
+   * @param {number} bmi
+   * @returns {{ category: string, color: string, description: string }}
+   */
+  function getBMICategory(bmi) {
+    if (bmi <= 0) {
+      return { category: 'Unknown', color: '#6b7280', description: 'Please enter valid values' };
+    }
+    if (bmi < 18.5) {
+      return { category: 'Underweight', color: '#3b82f6', description: 'Below standard weight' };
+    }
+    if (bmi < 25) {
+      return { category: 'Normal', color: '#10b981', description: 'Healthy weight range' };
+    }
+    if (bmi < 30) {
+      return { category: 'Overweight', color: '#f59e0b', description: 'Above standard weight' };
+    }
+    return { category: 'Obese', color: '#ef4444', description: 'Higher health risk range' };
+  }
+
+  /**
+   * Estimate calories burned for a workout
+   * @param {string} activityType - Activity type (running, walking, etc.)
+   * @param {number} durationMinutes - Duration in minutes
+   * @param {number} weightKg - User weight in kg
+   * @param {string} intensity - 'low', 'medium', 'high'
+   * @returns {number} Estimated calories burned
+   */
+  function calculateCaloriesBurned(activityType, durationMinutes, weightKg = 70, intensity = 'medium') {
+    if (!durationMinutes || durationMinutes <= 0) return 0;
+    const normType = (activityType || 'walking').toLowerCase().trim();
+    const met = MET_VALUES[normType] || 5.0;
+    const multiplier = INTENSITY_MULTIPLIERS[intensity.toLowerCase()] || 1.0;
+    const weight = weightKg > 0 ? weightKg : 70;
+
+    // Formula: (MET * 3.5 * weightKg / 200) * minutes * intensity
+    const calories = (met * 3.5 * weight / 200) * durationMinutes * multiplier;
+    return Math.round(calories);
+  }
+
+  /**
+   * Calculate Basal Metabolic Rate (BMR) using Mifflin-St Jeor equation
+   * @param {number} weightKg
+   * @param {number} heightCm
+   * @param {number} age
+   * @param {'male'|'female'} gender
+   * @returns {number} BMR in kcal/day
+   */
+  function calculateBMR(weightKg, heightCm, age, gender = 'female') {
+    if (!weightKg || !heightCm || !age || weightKg <= 0 || heightCm <= 0 || age <= 0) {
+      return 0;
+    }
+    const base = (10 * weightKg) + (6.25 * heightCm) - (5 * age);
+    return Math.round(gender.toLowerCase() === 'male' ? base + 5 : base - 161);
+  }
+
+  /**
+   * Calculate Total Daily Energy Expenditure (TDEE)
+   * @param {number} bmr
+   * @param {string} activityLevel
+   * @returns {number} TDEE in kcal/day
+   */
+  function calculateTDEE(bmr, activityLevel = 'moderate') {
+    if (!bmr || bmr <= 0) return 0;
+    const factor = ACTIVITY_MULTIPLIERS[activityLevel] || 1.375;
+    return Math.round(bmr * factor);
+  }
+
+  /**
+   * Calculate percentage progress towards a goal
+   * @param {number} current
+   * @param {number} target
+   * @returns {{ percentage: number, cappedPercentage: number, isCompleted: boolean }}
+   */
+  function calculateProgress(current, target) {
+    if (!target || target <= 0) {
+      return { percentage: 0, cappedPercentage: 0, isCompleted: false };
+    }
+    const pct = Math.round((current / target) * 100);
+    return {
+      percentage: pct,
+      cappedPercentage: Math.min(Math.max(pct, 0), 100),
+      isCompleted: pct >= 100
+    };
+  }
+
+  /**
+   * Format numbers with commas (e.g. 7520 -> 7,520)
+   * @param {number} num
+   * @param {string} [locale='en-US']
+   * @returns {string}
+   */
+  function formatNumber(num, locale = 'en-US') {
+    if (num === null || num === undefined || isNaN(num)) return '0';
+    return Number(num).toLocaleString(locale);
+  }
+
+  return {
+    MET_VALUES,
+    calculateBMI,
+    getBMICategory,
+    calculateCaloriesBurned,
+    calculateBMR,
+    calculateTDEE,
+    calculateProgress,
+    formatNumber
+  };
+});
+
+</script>
+    <script>
+/**
+ * Fitness Tracker Pro - Main Application Logic
+ * Integrates FitnessCalculator, Chart.js, LocalStorage persistence, and responsive UI.
+ */
+
+(function () {
+  'use strict';
+
+  // Use FitnessCalculator from window
+  const Calc = window.FitnessCalculator || {
+    calculateBMI: (w, h) => Math.round((w / ((h / 100) * (h / 100))) * 10) / 10,
+    getBMICategory: (bmi) => ({ category: 'Normal', color: '#10b981' }),
+    calculateCaloriesBurned: (type, duration, weight) => Math.round(duration * 7.5),
+    calculateBMR: (w, h, a, g) => 1300,
+    calculateTDEE: (bmr) => Math.round(bmr * 1.55),
+    calculateProgress: (curr, tgt) => ({
+      percentage: Math.round((curr / tgt) * 100),
+      cappedPercentage: Math.min(Math.round((curr / tgt) * 100), 100),
+      isCompleted: curr >= tgt
+    }),
+    formatNumber: (n) => Number(n || 0).toLocaleString('en-US')
+  };
+
+  const STORAGE_KEY = 'fitnesstracker_state_v1';
+
+  // Activity type icon mapping
+  const ACTIVITY_ICONS = {
+    running: '🏃',
+    walking: '🚶',
+    cycling: '🚴',
+    gym: '🏋️',
+    weightlifting: '🏋️',
+    swimming: '🏊',
+    yoga: '🧘',
+    hiit: '⚡',
+    pilates: '🤸',
+    dancing: '💃'
+  };
+
+  // Default initial state matching original user dashboard (7520 steps, 420 kcal, 1.8 L, 50 kg)
+  const DEFAULT_STATE = {
+    theme: 'light',
+    userProfile: {
+      name: 'Vaishnavi',
+      age: 22,
+      gender: 'female',
+      heightCm: 160,
+      weightKg: 50
+    },
+    goals: {
+      steps: 10000,
+      calories: 500,
+      waterMl: 2500,
+      targetWeight: 50,
+      calorieIntake: 2000
+    },
+    today: {
+      date: new Date().toISOString().split('T')[0],
+      steps: 7520,
+      waterMl: 1800,
+      sleepHours: 7.5
+    },
+    activities: [
+      {
+        id: 'act-1',
+        type: 'running',
+        title: 'Morning Jogging',
+        duration: 25,
+        calories: 240,
+        intensity: 'medium',
+        time: '07:30 AM',
+        date: new Date().toISOString().split('T')[0]
+      },
+      {
+        id: 'act-2',
+        type: 'yoga',
+        title: 'Vinyasa Flow Yoga',
+        duration: 35,
+        calories: 180,
+        intensity: 'medium',
+        time: '11:15 AM',
+        date: new Date().toISOString().split('T')[0]
+      }
+    ],
+    meals: [
+      {
+        id: 'meal-1',
+        name: 'Oatmeal & Fresh Berries',
+        type: 'Breakfast',
+        calories: 340,
+        protein: 12,
+        carbs: 58,
+        fat: 6,
+        time: '08:15 AM'
+      },
+      {
+        id: 'meal-2',
+        name: 'Avocado Salad & Brown Rice',
+        type: 'Lunch',
+        calories: 520,
+        protein: 18,
+        carbs: 65,
+        fat: 20,
+        time: '01:00 PM'
+      },
+      {
+        id: 'meal-3',
+        name: 'Greek Yogurt & Almonds',
+        type: 'Snack',
+        calories: 180,
+        protein: 14,
+        carbs: 12,
+        fat: 9,
+        time: '04:30 PM'
+      }
+    ],
+    history: [
+      { day: 'Thu', date: '2026-10-15', steps: 8400, caloriesBurned: 450, caloriesConsumed: 1850, waterMl: 2200, weight: 50.4 },
+      { day: 'Fri', date: '2026-10-16', steps: 9100, caloriesBurned: 490, caloriesConsumed: 1920, waterMl: 2400, weight: 50.3 },
+      { day: 'Sat', date: '2026-10-17', steps: 11200, caloriesBurned: 580, caloriesConsumed: 2100, waterMl: 2600, weight: 50.2 },
+      { day: 'Sun', date: '2026-10-18', steps: 6500, caloriesBurned: 350, caloriesConsumed: 1750, waterMl: 2000, weight: 50.2 },
+      { day: 'Mon', date: '2026-10-19', steps: 10400, caloriesBurned: 510, caloriesConsumed: 1980, waterMl: 2500, weight: 50.1 },
+      { day: 'Tue', date: '2026-10-20', steps: 8900, caloriesBurned: 440, caloriesConsumed: 1890, waterMl: 2300, weight: 50.0 },
+      { day: 'Today', date: new Date().toISOString().split('T')[0], steps: 7520, caloriesBurned: 420, caloriesConsumed: 1040, waterMl: 1800, weight: 50.0 }
+    ]
+  };
+
+  let state = {};
+  let charts = {};
+
+  // Load state from localStorage or use defaults
+  function loadState() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        state = JSON.parse(saved);
+        // Ensure today's date structure exists
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (!state.today || state.today.date !== todayStr) {
+          // If a new day, retain user profile and goals but refresh daily counters
+          state.today = {
+            date: todayStr,
+            steps: state.today?.steps || 7520,
+            waterMl: state.today?.waterMl || 1800,
+            sleepHours: 7.5
+          };
+        }
+      } else {
+        state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      }
+    } catch (err) {
+      console.warn('Could not load localStorage, using defaults', err);
+      state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (err) {
+      console.error('Failed to save to localStorage:', err);
+    }
+  }
+
+  // Toast Notifications
+  function showToast(message, icon = '✅') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      toast.style.transition = 'all 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, 3200);
+  }
+
+  // Update Main Metrics Cards
+  function updateDashboardMetrics() {
+    // 1. Steps
+    const stepsVal = state.today.steps || 0;
+    const stepsGoal = state.goals.steps || 10000;
+    const stepsProg = Calc.calculateProgress(stepsVal, stepsGoal);
+    
+    const stepsEl = document.getElementById('valSteps');
+    if (stepsEl) stepsEl.textContent = Calc.formatNumber(stepsVal);
+    
+    const stepsBar = document.getElementById('barSteps');
+    if (stepsBar) stepsBar.style.width = stepsProg.cappedPercentage + '%';
+    
+    const stepsPct = document.getElementById('pctSteps');
+    if (stepsPct) stepsPct.textContent = stepsProg.percentage + '%';
+    
+    const stepsTargetEl = document.getElementById('targetSteps');
+    if (stepsTargetEl) stepsTargetEl.textContent = `Goal: ${Calc.formatNumber(stepsGoal)} steps`;
+
+    // 2. Calories Burned
+    const totalBurned = state.activities.reduce((sum, act) => sum + (Number(act.calories) || 0), 0);
+    const caloriesGoal = state.goals.calories || 500;
+    const calProg = Calc.calculateProgress(totalBurned, caloriesGoal);
+
+    const calsEl = document.getElementById('valCalories');
+    if (calsEl) calsEl.textContent = Calc.formatNumber(totalBurned);
+
+    const calsBar = document.getElementById('barCalories');
+    if (calsBar) calsBar.style.width = calProg.cappedPercentage + '%';
+
+    const calsPct = document.getElementById('pctCalories');
+    if (calsPct) calsPct.textContent = calProg.percentage + '%';
+
+    const calsTargetEl = document.getElementById('targetCalories');
+    if (calsTargetEl) calsTargetEl.textContent = `Goal: ${Calc.formatNumber(caloriesGoal)} kcal`;
+
+    // 3. Water Intake
+    const waterMl = state.today.waterMl || 0;
+    const waterGoal = state.goals.waterMl || 2500;
+    const waterLiters = (waterMl / 1000).toFixed(1);
+    const waterProg = Calc.calculateProgress(waterMl, waterGoal);
+
+    const waterEl = document.getElementById('valWater');
+    if (waterEl) waterEl.textContent = `${waterLiters} L`;
+
+    const waterBar = document.getElementById('barWater');
+    if (waterBar) waterBar.style.width = waterProg.cappedPercentage + '%';
+
+    const waterPct = document.getElementById('pctWater');
+    if (waterPct) waterPct.textContent = waterProg.percentage + '%';
+
+    const waterTargetEl = document.getElementById('targetWater');
+    if (waterTargetEl) waterTargetEl.textContent = `Goal: ${(waterGoal / 1000).toFixed(1)} L`;
+
+    renderWaterCups(waterMl, waterGoal);
+
+    // 4. Weight & BMI
+    const weightKg = state.userProfile.weightKg || 50;
+    const heightCm = state.userProfile.heightCm || 160;
+    const bmi = Calc.calculateBMI(weightKg, heightCm);
+    const bmiCat = Calc.getBMICategory(bmi);
+
+    const weightEl = document.getElementById('valWeight');
+    if (weightEl) weightEl.textContent = `${weightKg} kg`;
+
+    const bmiBadge = document.getElementById('badgeBMI');
+    if (bmiBadge) {
+      bmiBadge.textContent = `BMI ${bmi} (${bmiCat.category})`;
+      bmiBadge.style.color = bmiCat.color;
+      bmiBadge.style.backgroundColor = `${bmiCat.color}1a`;
+    }
+
+    const targetWeightEl = document.getElementById('targetWeight');
+    if (targetWeightEl) targetWeightEl.textContent = `Target: ${state.goals.targetWeight} kg`;
+
+    // Nutrition & Net Calories Summary
+    const totalConsumed = state.meals.reduce((sum, m) => sum + (Number(m.calories) || 0), 0);
+    const totalProtein = state.meals.reduce((sum, m) => sum + (Number(m.protein) || 0), 0);
+    const totalCarbs = state.meals.reduce((sum, m) => sum + (Number(m.carbs) || 0), 0);
+    const totalFat = state.meals.reduce((sum, m) => sum + (Number(m.fat) || 0), 0);
+    const netCalories = totalConsumed - totalBurned;
+
+    const elConsumed = document.getElementById('valCaloriesConsumed');
+    if (elConsumed) elConsumed.textContent = Calc.formatNumber(totalConsumed) + ' kcal';
+
+    const elNet = document.getElementById('valNetCalories');
+    if (elNet) elNet.textContent = (netCalories >= 0 ? '+' : '') + Calc.formatNumber(netCalories) + ' kcal';
+
+    const elProtein = document.getElementById('valProtein');
+    if (elProtein) elProtein.textContent = totalProtein + 'g';
+
+    const elCarbs = document.getElementById('valCarbs');
+    if (elCarbs) elCarbs.textContent = totalCarbs + 'g';
+
+    const elFat = document.getElementById('valFat');
+    if (elFat) elFat.textContent = totalFat + 'g';
+  }
+
+  // Render interactive water glasses
+  function renderWaterCups(waterMl, goalMl) {
+    const container = document.getElementById('waterCupsContainer');
+    if (!container) return;
+
+    container.innerHTML = '';
+    const cupSize = 250; // 250 ml per glass
+    const totalCups = Math.max(10, Math.ceil(goalMl / cupSize));
+    const filledCups = Math.floor(waterMl / cupSize);
+
+    for (let i = 0; i < totalCups; i++) {
+      const cup = document.createElement('div');
+      cup.className = 'water-cup' + (i < filledCups ? ' filled' : '');
+      cup.title = `Glass ${i + 1} (${(i + 1) * cupSize} ml)`;
+      cup.addEventListener('click', () => {
+        const targetAmount = (i + 1) * cupSize;
+        state.today.waterMl = targetAmount;
+        saveState();
+        updateDashboardMetrics();
+        showToast(`Water updated to ${(targetAmount / 1000).toFixed(2)} L`, '💧');
+      });
+      container.appendChild(cup);
+    }
+  }
+
+  // Render list of logged activities today
+  function renderActivitiesList() {
+    const container = document.getElementById('activityList');
+    if (!container) return;
+
+    if (!state.activities || state.activities.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🏃</div>
+          <p>No workouts logged today yet.</p>
+          <button class="btn btn-primary btn-sm" style="margin-top: 0.6rem;" onclick="window.FitnessApp.openModal('modalWorkout')">
+            + Log Your First Workout
+          </button>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = state.activities
+      .map((act) => {
+        const icon = ACTIVITY_ICONS[act.type] || '⚡';
+        const typeLabel = act.type ? act.type.charAt(0).toUpperCase() + act.type.slice(1) : 'Workout';
+        return `
+        <div class="activity-item" data-id="${act.id}">
+          <div class="activity-left">
+            <div class="activity-icon">${icon}</div>
+            <div class="activity-info">
+              <h4>${escapeHtml(act.title || typeLabel)}</h4>
+              <p>${act.duration} min • ${typeLabel} • ${escapeHtml(act.intensity || 'medium')} intensity • ${act.time || ''}</p>
+            </div>
+          </div>
+          <div class="activity-right">
+            <span class="activity-cals">+${Calc.formatNumber(act.calories)} kcal</span>
+            <button class="btn-delete" title="Delete workout" onclick="window.FitnessApp.deleteActivity('${act.id}')">
+              🗑️
+            </button>
+          </div>
+        </div>`;
+      })
+      .join('');
+  }
+
+  // Render list of logged meals
+  function renderMealsList() {
+    const container = document.getElementById('mealsList');
+    if (!container) return;
+
+    if (!state.meals || state.meals.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🥗</div>
+          <p>No meals logged today yet.</p>
+          <button class="btn btn-secondary btn-sm" style="margin-top: 0.6rem;" onclick="window.FitnessApp.openModal('modalMeal')">
+            + Log a Meal
+          </button>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = state.meals
+      .map((meal) => {
+        return `
+        <div class="activity-item" data-id="${meal.id}">
+          <div class="activity-left">
+            <div class="activity-icon">🍽️</div>
+            <div class="activity-info">
+              <h4>${escapeHtml(meal.name)}</h4>
+              <p>${meal.type} • P: ${meal.protein || 0}g • C: ${meal.carbs || 0}g • F: ${meal.fat || 0}g • ${meal.time || ''}</p>
+            </div>
+          </div>
+          <div class="activity-right">
+            <span style="font-weight: 700; color: var(--secondary);">${Calc.formatNumber(meal.calories)} kcal</span>
+            <button class="btn-delete" title="Delete meal" onclick="window.FitnessApp.deleteMeal('${meal.id}')">
+              🗑️
+            </button>
+          </div>
+        </div>`;
+      })
+      .join('');
+  }
+
+  // Modal Management
+  function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.add('active');
+      const firstInput = modal.querySelector('input:not([type=hidden]), select');
+      if (firstInput) firstInput.focus();
+    }
+  }
+
+  function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('active');
+    }
+  }
+
+  function setupModals() {
+    document.querySelectorAll('.modal-overlay').forEach((overlay) => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.remove('active');
+        }
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach((modal) => {
+          modal.classList.remove('active');
+        });
+      }
+    });
+
+    document.querySelectorAll('.modal-close, [data-dismiss="modal"]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const modal = btn.closest('.modal-overlay');
+        if (modal) modal.classList.remove('active');
+      });
+    });
+  }
+
+  // Tabs Switching
+  function setupTabs() {
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    tabBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-tab');
+        if (!targetId) return;
+
+        tabBtns.forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        document.querySelectorAll('.tab-content').forEach((content) => {
+          content.classList.remove('active');
+        });
+
+        const targetContent = document.getElementById(targetId);
+        if (targetContent) {
+          targetContent.classList.add('active');
         }
 
-        function addSteps(n) { state.steps += n; save(); }
-        function promptSteps() { const val = prompt("Enter steps to add:", "1000"); if (val) addSteps(Number(val) || 0); }
-        function addWater(ml) { state.waterMl += ml; save(); }
-        function updateWeightPrompt() { const val = prompt("Enter current weight (kg):", state.weight); if (val) { state.weight = Number(val) || state.weight; save(); } }
-        function delWorkout(id) { state.workouts = state.workouts.filter(w => w.id !== id); save(); }
-        function resetData() { if (confirm("Reset to default data?")) { localStorage.removeItem(KEY); location.reload(); } }
+        // Resize charts if Analytics tab is selected
+        if (targetId === 'tab-analytics') {
+          setTimeout(renderCharts, 100);
+        }
+      });
+    });
+  }
 
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+  // Form Handlers
+  function setupForms() {
+    // 1. Log Workout Form
+    const workoutForm = document.getElementById('formWorkout');
+    if (workoutForm) {
+      // Live calorie estimation as user changes duration or workout type
+      const actTypeInput = document.getElementById('workoutType');
+      const actDurationInput = document.getElementById('workoutDuration');
+      const actIntensityInput = document.getElementById('workoutIntensity');
+      const actCaloriesInput = document.getElementById('workoutCalories');
 
-        document.getElementById('workoutForm').onsubmit = (e) => {
-            e.preventDefault();
-            const type = document.getElementById('wType').value;
-            const dur = Number(document.getElementById('wDuration').value) || 30;
-            const cals = Number(document.getElementById('wCalories').value) || 200;
-            state.workouts.unshift({ id: Date.now(), title: type, duration: dur, calories: cals, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
-            save(); closeModal('modalWorkout');
+      function updateEstimatedCals() {
+        const type = actTypeInput.value;
+        const dur = Number(actDurationInput.value) || 0;
+        const intensity = actIntensityInput.value;
+        const weight = state.userProfile.weightKg || 50;
+        const est = Calc.calculateCaloriesBurned(type, dur, weight, intensity);
+        if (est > 0) {
+          actCaloriesInput.placeholder = `Est: ~${est} kcal`;
+          if (!actCaloriesInput.dataset.manual) {
+            actCaloriesInput.value = est;
+          }
+        }
+      }
+
+      if (actTypeInput && actDurationInput && actIntensityInput) {
+        actTypeInput.addEventListener('change', updateEstimatedCals);
+        actDurationInput.addEventListener('input', updateEstimatedCals);
+        actIntensityInput.addEventListener('change', updateEstimatedCals);
+        actCaloriesInput.addEventListener('input', () => {
+          actCaloriesInput.dataset.manual = 'true';
+        });
+      }
+
+      workoutForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const type = actTypeInput.value;
+        const title = document.getElementById('workoutTitle').value.trim() || `${type.charAt(0).toUpperCase() + type.slice(1)} Session`;
+        const duration = Number(actDurationInput.value) || 30;
+        const intensity = actIntensityInput.value;
+        const weight = state.userProfile.weightKg || 50;
+        const calories = Number(actCaloriesInput.value) || Calc.calculateCaloriesBurned(type, duration, weight, intensity);
+        const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        const newAct = {
+          id: 'act-' + Date.now(),
+          type,
+          title,
+          duration,
+          calories,
+          intensity,
+          time: timeNow,
+          date: new Date().toISOString().split('T')[0]
         };
 
-        let myChart = null;
-        function renderChart() {
-            const ctx = document.getElementById('chartSteps');
-            if (!ctx) return;
-            if (myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Today'],
-                    datasets: [{ label: 'Steps', data: [8400, 9100, 11200, 6500, 10400, 8900, state.steps], backgroundColor: '#10b981', borderRadius: 6 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
+        state.activities.unshift(newAct);
+        saveState();
+        updateDashboardMetrics();
+        renderActivitiesList();
+        renderCharts();
+        closeModal('modalWorkout');
+        workoutForm.reset();
+        delete actCaloriesInput.dataset.manual;
+
+        showToast(`Logged ${duration} min ${title} (+${calories} kcal)!`, '🔥');
+      });
+    }
+
+    // 2. Log Meal Form
+    const mealForm = document.getElementById('formMeal');
+    if (mealForm) {
+      mealForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('mealName').value.trim();
+        const type = document.getElementById('mealType').value;
+        const calories = Number(document.getElementById('mealCalories').value) || 0;
+        const protein = Number(document.getElementById('mealProtein').value) || 0;
+        const carbs = Number(document.getElementById('mealCarbs').value) || 0;
+        const fat = Number(document.getElementById('mealFat').value) || 0;
+        const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        const newMeal = {
+          id: 'meal-' + Date.now(),
+          name: name || 'Healthy Meal',
+          type,
+          calories,
+          protein,
+          carbs,
+          fat,
+          time: timeNow
+        };
+
+        state.meals.unshift(newMeal);
+        saveState();
+        updateDashboardMetrics();
+        renderMealsList();
+        renderCharts();
+        closeModal('modalMeal');
+        mealForm.reset();
+
+        showToast(`Logged ${newMeal.name} (${calories} kcal)`, '🥗');
+      });
+    }
+
+    // 3. Log Steps Form
+    const stepsForm = document.getElementById('formSteps');
+    if (stepsForm) {
+      stepsForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const addSteps = Number(document.getElementById('stepsInput').value) || 0;
+        state.today.steps = (state.today.steps || 0) + addSteps;
+        saveState();
+        updateDashboardMetrics();
+        renderCharts();
+        closeModal('modalSteps');
+        stepsForm.reset();
+        showToast(`Added ${Calc.formatNumber(addSteps)} steps!`, '👟');
+      });
+    }
+
+    // 4. Log Water Form
+    const waterForm = document.getElementById('formWater');
+    if (waterForm) {
+      waterForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const addWater = Number(document.getElementById('waterInput').value) || 0;
+        state.today.waterMl = (state.today.waterMl || 0) + addWater;
+        saveState();
+        updateDashboardMetrics();
+        closeModal('modalWater');
+        waterForm.reset();
+        showToast(`Added ${(addWater / 1000).toFixed(2)} L water!`, '💧');
+      });
+    }
+
+    // 5. Update Weight Form
+    const weightForm = document.getElementById('formWeight');
+    if (weightForm) {
+      weightForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const weight = Number(document.getElementById('inputWeight').value) || state.userProfile.weightKg;
+        const height = Number(document.getElementById('inputHeight').value) || state.userProfile.heightCm;
+
+        state.userProfile.weightKg = weight;
+        state.userProfile.heightCm = height;
+
+        // Push to history
+        const todayStr = new Date().toISOString().split('T')[0];
+        const histItem = state.history.find((h) => h.date === todayStr);
+        if (histItem) {
+          histItem.weight = weight;
+        } else {
+          state.history.push({
+            day: 'Today',
+            date: todayStr,
+            steps: state.today.steps,
+            caloriesBurned: 420,
+            caloriesConsumed: 1800,
+            waterMl: state.today.waterMl,
+            weight
+          });
         }
 
-        updateUI();
-    </script>
+        saveState();
+        updateDashboardMetrics();
+        renderCharts();
+        closeModal('modalWeight');
+        showToast(`Profile updated: ${weight} kg, ${height} cm!`, '⚖️');
+      });
+    }
+
+    // 6. Goals Settings Form
+    const goalsForm = document.getElementById('formGoals');
+    if (goalsForm) {
+      goalsForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        state.goals.steps = Number(document.getElementById('goalStepsInput').value) || 10000;
+        state.goals.calories = Number(document.getElementById('goalCaloriesInput').value) || 500;
+        state.goals.waterMl = Number(document.getElementById('goalWaterInput').value) || 2500;
+        state.goals.targetWeight = Number(document.getElementById('goalWeightInput').value) || 50;
+        state.goals.calorieIntake = Number(document.getElementById('goalIntakeInput').value) || 2000;
+
+        saveState();
+        updateDashboardMetrics();
+        renderCharts();
+        closeModal('modalGoals');
+        showToast('Goals updated successfully!', '🎯');
+      });
+    }
+
+    // 7. Interactive BMI Calculator Widget
+    const btnCalcBMI = document.getElementById('btnCalculateBMI');
+    if (btnCalcBMI) {
+      btnCalcBMI.addEventListener('click', () => {
+        const w = Number(document.getElementById('bmiWeight').value) || 0;
+        const h = Number(document.getElementById('bmiHeight').value) || 0;
+        if (!w || !h) {
+          showToast('Please enter both weight and height', '⚠️');
+          return;
+        }
+        const bmi = Calc.calculateBMI(w, h);
+        const cat = Calc.getBMICategory(bmi);
+
+        const resEl = document.getElementById('bmiResultValue');
+        const badgeEl = document.getElementById('bmiResultBadge');
+        const descEl = document.getElementById('bmiResultDesc');
+
+        if (resEl) resEl.textContent = bmi;
+        if (badgeEl) {
+          badgeEl.textContent = cat.category;
+          badgeEl.style.color = cat.color;
+          badgeEl.style.backgroundColor = `${cat.color}20`;
+        }
+        if (descEl) {
+          const minIdeal = Math.round(18.5 * (h / 100) * (h / 100) * 10) / 10;
+          const maxIdeal = Math.round(24.9 * (h / 100) * (h / 100) * 10) / 10;
+          descEl.innerHTML = `${cat.description}. Ideal healthy weight range for ${h} cm: <strong>${minIdeal} kg - ${maxIdeal} kg</strong>`;
+        }
+      });
+    }
+
+    // 8. Interactive BMR / Calorie Needs Calculator
+    const btnCalcBMR = document.getElementById('btnCalculateBMR');
+    if (btnCalcBMR) {
+      btnCalcBMR.addEventListener('click', () => {
+        const w = Number(document.getElementById('bmrWeight').value) || 0;
+        const h = Number(document.getElementById('bmrHeight').value) || 0;
+        const age = Number(document.getElementById('bmrAge').value) || 0;
+        const gender = document.getElementById('bmrGender').value;
+        const activity = document.getElementById('bmrActivity').value;
+
+        if (!w || !h || !age) {
+          showToast('Please fill in weight, height, and age', '⚠️');
+          return;
+        }
+
+        const bmr = Calc.calculateBMR(w, h, age, gender);
+        const tdee = Calc.calculateTDEE(bmr, activity);
+
+        const bmrEl = document.getElementById('valBMR');
+        const tdeeEl = document.getElementById('valTDEE');
+        const lossEl = document.getElementById('valLossCalories');
+        const gainEl = document.getElementById('valGainCalories');
+
+        if (bmrEl) bmrEl.textContent = `${Calc.formatNumber(bmr)} kcal/day`;
+        if (tdeeEl) tdeeEl.textContent = `${Calc.formatNumber(tdee)} kcal/day`;
+        if (lossEl) lossEl.textContent = `${Calc.formatNumber(tdee - 500)} kcal/day`;
+        if (gainEl) gainEl.textContent = `${Calc.formatNumber(tdee + 300)} kcal/day`;
+      });
+    }
+  }
+
+  // Quick Action Helpers
+  function addQuickWater(amountMl) {
+    state.today.waterMl = (state.today.waterMl || 0) + amountMl;
+    saveState();
+    updateDashboardMetrics();
+    showToast(`Added +${amountMl} ml water!`, '💧');
+  }
+
+  function addQuickSteps(amountSteps) {
+    state.today.steps = (state.today.steps || 0) + amountSteps;
+    saveState();
+    updateDashboardMetrics();
+    renderCharts();
+    showToast(`Added +${Calc.formatNumber(amountSteps)} steps!`, '👟');
+  }
+
+  function deleteActivity(actId) {
+    state.activities = state.activities.filter((a) => a.id !== actId);
+    saveState();
+    updateDashboardMetrics();
+    renderActivitiesList();
+    renderCharts();
+    showToast('Activity deleted', '🗑️');
+  }
+
+  function deleteMeal(mealId) {
+    state.meals = state.meals.filter((m) => m.id !== mealId);
+    saveState();
+    updateDashboardMetrics();
+    renderMealsList();
+    renderCharts();
+    showToast('Meal removed', '🗑️');
+  }
+
+  // Theme Toggle (Light / Dark)
+  function setupTheme() {
+    const savedTheme = state.theme || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+
+    const toggleBtn = document.getElementById('themeToggleBtn');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        state.theme = newTheme;
+        saveState();
+        updateThemeIcon(newTheme);
+        renderCharts();
+      });
+    }
+  }
+
+  function updateThemeIcon(theme) {
+    const iconEl = document.getElementById('themeIcon');
+    if (iconEl) {
+      iconEl.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+  }
+
+  // Render Charts with Chart.js
+  function renderCharts() {
+    if (typeof Chart === 'undefined') {
+      console.warn('Chart.js not loaded, skipping chart rendering.');
+      return;
+    }
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#94a3b8' : '#64748b';
+    const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
+    // 1. Steps Chart (Weekly)
+    const ctxSteps = document.getElementById('chartWeeklySteps');
+    if (ctxSteps) {
+      if (charts.steps) charts.steps.destroy();
+      const labels = state.history.map((h) => h.day);
+      const data = state.history.map((h) => (h.day === 'Today' ? state.today.steps : h.steps));
+
+      charts.steps = new Chart(ctxSteps, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Steps',
+              data,
+              backgroundColor: '#10b981',
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { ticks: { color: textColor }, grid: { display: false } },
+            y: { ticks: { color: textColor }, grid: { color: gridColor }, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    // 2. Calories Comparison Chart
+    const ctxCalories = document.getElementById('chartCalories');
+    if (ctxCalories) {
+      if (charts.calories) charts.calories.destroy();
+      const labels = state.history.map((h) => h.day);
+      const totalBurnedToday = state.activities.reduce((sum, act) => sum + (Number(act.calories) || 0), 0);
+      const totalConsumedToday = state.meals.reduce((sum, m) => sum + (Number(m.calories) || 0), 0);
+
+      const burnedData = state.history.map((h) => (h.day === 'Today' ? totalBurnedToday : h.caloriesBurned));
+      const consumedData = state.history.map((h) => (h.day === 'Today' ? totalConsumedToday : h.caloriesConsumed));
+
+      charts.calories = new Chart(ctxCalories, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Burned',
+              data: burnedData,
+              backgroundColor: '#f97316',
+              borderRadius: 4
+            },
+            {
+              label: 'Consumed',
+              data: consumedData,
+              backgroundColor: '#6366f1',
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: textColor } }
+          },
+          scales: {
+            x: { ticks: { color: textColor }, grid: { display: false } },
+            y: { ticks: { color: textColor }, grid: { color: gridColor }, beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    // 3. Activity Type Breakdown (Doughnut)
+    const ctxActivities = document.getElementById('chartActivities');
+    if (ctxActivities) {
+      if (charts.activities) charts.activities.destroy();
+
+      // Aggregate minutes by activity type
+      const typeMinutes = {};
+      state.activities.forEach((act) => {
+        const type = act.type || 'other';
+        typeMinutes[type] = (typeMinutes[type] || 0) + (Number(act.duration) || 0);
+      });
+
+      const types = Object.keys(typeMinutes);
+      const minutes = Object.values(typeMinutes);
+
+      const backgroundColors = ['#10b981', '#6366f1', '#f97316', '#0284c7', '#ec4899', '#8b5cf6'];
+
+      charts.activities = new Chart(ctxActivities, {
+        type: 'doughnut',
+        data: {
+          labels: types.map((t) => t.toUpperCase()),
+          datasets: [
+            {
+              data: minutes.length ? minutes : [1],
+              backgroundColor: minutes.length ? backgroundColors.slice(0, types.length) : ['#e2e8f0']
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor } }
+          }
+        }
+      });
+    }
+
+    // 4. Weight Tracking Line Chart
+    const ctxWeight = document.getElementById('chartWeight');
+    if (ctxWeight) {
+      if (charts.weight) charts.weight.destroy();
+      const labels = state.history.map((h) => h.day);
+      const weightData = state.history.map((h) => (h.day === 'Today' ? state.userProfile.weightKg : h.weight));
+
+      charts.weight = new Chart(ctxWeight, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'Weight (kg)',
+              data: weightData,
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99, 102, 241, 0.1)',
+              tension: 0.3,
+              fill: true,
+              pointRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { ticks: { color: textColor }, grid: { display: false } },
+            y: { ticks: { color: textColor }, grid: { color: gridColor }, beginAtZero: false }
+          }
+        }
+      });
+    }
+  }
+
+  // Pre-fill Goal modal inputs
+  function populateGoalInputs() {
+    const sInput = document.getElementById('goalStepsInput');
+    const cInput = document.getElementById('goalCaloriesInput');
+    const wInput = document.getElementById('goalWaterInput');
+    const twInput = document.getElementById('goalWeightInput');
+    const iInput = document.getElementById('goalIntakeInput');
+
+    if (sInput) sInput.value = state.goals.steps || 10000;
+    if (cInput) cInput.value = state.goals.calories || 500;
+    if (wInput) wInput.value = state.goals.waterMl || 2500;
+    if (twInput) twInput.value = state.goals.targetWeight || 50;
+    if (iInput) iInput.value = state.goals.calorieIntake || 2000;
+
+    const pwInput = document.getElementById('inputWeight');
+    const phInput = document.getElementById('inputHeight');
+    if (pwInput) pwInput.value = state.userProfile.weightKg || 50;
+    if (phInput) phInput.value = state.userProfile.heightCm || 160;
+
+    // BMI inputs
+    const bwInput = document.getElementById('bmiWeight');
+    const bhInput = document.getElementById('bmiHeight');
+    if (bwInput) bwInput.value = state.userProfile.weightKg || 50;
+    if (bhInput) bhInput.value = state.userProfile.heightCm || 160;
+
+    // BMR inputs
+    const bmrW = document.getElementById('bmrWeight');
+    const bmrH = document.getElementById('bmrHeight');
+    const bmrA = document.getElementById('bmrAge');
+    if (bmrW) bmrW.value = state.userProfile.weightKg || 50;
+    if (bmrH) bmrH.value = state.userProfile.heightCm || 160;
+    if (bmrA) bmrA.value = state.userProfile.age || 22;
+  }
+
+  // Export Data to JSON
+  function exportData() {
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(state, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute('href', dataStr);
+    downloadAnchor.setAttribute('download', `fitness-tracker-backup-${new Date().toISOString().split('T')[0]}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    showToast('Data exported successfully!', '💾');
+  }
+
+  // Import Data from JSON
+  function importData(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        const imported = JSON.parse(e.target.result);
+        if (imported && imported.goals && imported.userProfile) {
+          state = imported;
+          saveState();
+          updateDashboardMetrics();
+          renderActivitiesList();
+          renderMealsList();
+          renderCharts();
+          populateGoalInputs();
+          showToast('Data restored successfully!', '✅');
+        } else {
+          showToast('Invalid backup file format', '❌');
+        }
+      } catch (err) {
+        showToast('Error reading JSON file', '❌');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // Reset to default demo data
+  function resetDemoData() {
+    if (confirm('Reset to default fitness tracker data?')) {
+      state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+      saveState();
+      updateDashboardMetrics();
+      renderActivitiesList();
+      renderMealsList();
+      renderCharts();
+      populateGoalInputs();
+      showToast('Reset to default demo data', '🔄');
+    }
+  }
+
+  // Helper for escaping HTML
+  function escapeHtml(text) {
+    if (!text) return '';
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  // Setup current date string
+  function setupDate() {
+    const el = document.getElementById('currentDateDisplay');
+    if (el) {
+      const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+      el.textContent = new Date().toLocaleDateString('en-US', options);
+    }
+  }
+
+  // Initialization
+  function init() {
+    loadState();
+    setupTheme();
+    setupDate();
+    setupTabs();
+    setupModals();
+    setupForms();
+
+    populateGoalInputs();
+    updateDashboardMetrics();
+    renderActivitiesList();
+    renderMealsList();
+    renderCharts();
+
+    // Trigger initial BMI calculation
+    const btnCalcBMI = document.getElementById('btnCalculateBMI');
+    if (btnCalcBMI) btnCalcBMI.click();
+
+    // Trigger initial BMR calculation
+    const btnCalcBMR = document.getElementById('btnCalculateBMR');
+    if (btnCalcBMR) btnCalcBMR.click();
+
+    // Quick add button listener
+    const quickSteps500 = document.getElementById('btnQuickSteps500');
+    if (quickSteps500) quickSteps500.addEventListener('click', () => addQuickSteps(500));
+
+    const quickSteps1000 = document.getElementById('btnQuickSteps1000');
+    if (quickSteps1000) quickSteps1000.addEventListener('click', () => addQuickSteps(1000));
+
+    const quickWater250 = document.getElementById('btnQuickWater250');
+    if (quickWater250) quickWater250.addEventListener('click', () => addQuickWater(250));
+
+    const quickWater500 = document.getElementById('btnQuickWater500');
+    if (quickWater500) quickWater500.addEventListener('click', () => addQuickWater(500));
+
+    // Reset button
+    const resetBtn = document.getElementById('btnResetDemo');
+    if (resetBtn) resetBtn.addEventListener('click', resetDemoData);
+
+    // Export button
+    const exportBtn = document.getElementById('btnExportData');
+    if (exportBtn) exportBtn.addEventListener('click', exportData);
+
+    // Import file input
+    const importInput = document.getElementById('fileImportInput');
+    if (importInput) {
+      importInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          importData(e.target.files[0]);
+        }
+      });
+    }
+  }
+
+  // Public API attached to window
+  window.FitnessApp = {
+    openModal,
+    closeModal,
+    deleteActivity,
+    deleteMeal,
+    addQuickSteps,
+    addQuickWater,
+    exportData,
+    resetDemoData,
+    getState: () => state
+  };
+
+  // Run on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+</script>
 </body>
 </html>
